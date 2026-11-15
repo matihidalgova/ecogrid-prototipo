@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EcoGrid · Prototipo UI multi-perfil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1f3864;--ink:#16202f;--mut:#5b6678;--line:#e1e6ee;--bg:#f4f6fa;--card:#fff;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--teal:#17614f;--vio:#47367f;--sky:#2e6ca4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+.mono{font-family:'JetBrains Mono',monospace}
+.view{display:none;min-height:100vh}.view.on{display:block}
+/* top bar */
+.top{height:52px;background:var(--navy);color:#fff;display:flex;align-items:center;padding:0 20px;gap:18px}
+.logo{font-weight:700;letter-spacing:.02em;display:flex;align-items:center;gap:8px}
+.logo i{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#7dd3c0,#2e6ca4);display:inline-block}
+.top nav{display:flex;gap:4px;margin-left:12px}
+.top nav a{padding:6px 12px;border-radius:6px;font-size:13px;opacity:.75}
+.top nav a.act,.top nav a:hover{background:rgba(255,255,255,.14);opacity:1}
+.top .sp{flex:1}
+.pill{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;display:inline-flex;align-items:center;gap:6px}
+.pill.sim{background:#fff3d6;color:#7a4b00}
+.pill.ok{background:#dcfce7;color:#166534}.pill.warn{background:#fef3c7;color:#92400e}.pill.bad{background:#fee2e2;color:#991b1b}.pill.info{background:#e0ecfa;color:#1f3864}.pill.vio{background:#ede9fe;color:#47367f}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+.who{font-size:12.5px;opacity:.85}
+.main{padding:20px;max-width:1360px;margin:0 auto}
+.h1{font-size:20px;font-weight:700;margin-bottom:2px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:16px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1.6fr 1fr}.g21{grid-template-columns:2fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card h3{font-size:13.5px;font-weight:600;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.kpi .l{font-size:12px;color:var(--mut)}
+.kpi .v{font-size:26px;font-weight:700;margin:4px 0 2px;letter-spacing:-.01em}
+.kpi .d{font-size:12px}
+.src{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#7b8597;margin-top:6px;display:block}
+.up{color:var(--ok)}.down{color:var(--bad)}
+.bar{height:8px;background:#edf1f6;border-radius:99px;overflow:hidden}.bar>i{display:block;height:100%;border-radius:99px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;color:var(--mut);font-weight:600;font-size:11.5px;padding:7px 8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid #f0f2f6;vertical-align:middle}
+.agent{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f0f2f6}
+.agent:last-child{border:0}
+.av{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex:none}
+.agent .t{font-weight:600;font-size:13px}.agent .s{font-size:12px;color:var(--mut)}
+.leg{display:flex;gap:14px;font-size:11.5px;color:var(--mut)}.leg span{display:flex;align-items:center;gap:5px}.leg i{width:12px;height:3px;border-radius:2px;display:inline-block}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tabs a{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;background:#fff;border:1px solid var(--line);color:var(--mut)}
+.tabs a.act{background:var(--navy);color:#fff;border-color:var(--navy)}
+.gate{display:flex;gap:14px;align-items:center}
+.ring{width:84px;height:84px;flex:none}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:600}
+.btn.pri{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.red{background:var(--bad);color:#fff;border-color:var(--bad)}
+.btn.ghost{background:transparent}
+.seg{display:inline-flex;background:#edf1f6;border-radius:9px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:7px;font-size:12.5px;font-weight:600;color:var(--mut)}
+.seg button.act{background:#fff;color:var(--navy);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.kill{background:#fff5f5;border:1.5px solid #f3b4b4}
+.bigred{width:100%;padding:14px;border-radius:10px;background:var(--bad);color:#fff;border:0;font-weight:700;font-size:15px;letter-spacing:.02em}
+.freq{font-size:40px;font-weight:700;letter-spacing:-.02em}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:50}
+.modal.on{display:flex}
+.modal .box{background:#fff;border-radius:14px;padding:22px;width:420px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.modal h4{font-size:16px;margin-bottom:8px}
+.modal p{font-size:13px;color:var(--mut);margin-bottom:16px;line-height:1.45}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#16202f;color:#fff;padding:10px 16px;border-radius:9px;font-size:13px;display:none;z-index:60}
+/* launcher */
+.hero{background:linear-gradient(160deg,#1f3864,#17405f 60%,#17614f);color:#fff;padding:46px 24px 90px}
+.hero .in{max-width:1100px;margin:0 auto}
+.hero h1{font-size:30px;margin:10px 0 6px}
+.hero p{opacity:.85;max-width:720px;line-height:1.5}
+.cards{max-width:1100px;margin:-60px auto 30px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:0 24px}
+.pc{background:#fff;border-radius:14px;padding:18px;border:1px solid var(--line);box-shadow:0 6px 18px rgba(15,23,42,.06);display:flex;flex-direction:column;gap:8px;transition:.15s}
+.pc:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(15,23,42,.1)}
+.pc .ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff}
+.pc b{font-size:15px}.pc span{font-size:12.5px;color:var(--mut);line-height:1.45}
+.pc .go{margin-top:auto;font-size:12.5px;font-weight:600;color:var(--sky)}
+.note{max-width:1100px;margin:0 auto 40px;padding:0 24px;font-size:12.5px;color:var(--mut);line-height:1.55}
+/* phone */
+.stage{display:flex;gap:34px;justify-content:center;align-items:flex-start;padding:26px 20px}
+.phone{width:380px;height:780px;border-radius:44px;background:#0f172a;padding:12px;box-shadow:0 18px 40px rgba(15,23,42,.25);flex:none}
+.scr{width:100%;height:100%;border-radius:34px;background:#f4f6fa;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.sb{height:38px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-size:12.5px;font-weight:600}
+.ah{padding:6px 18px 12px;display:flex;align-items:center;gap:10px}
+.ah .bk{width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700}
+.ah h2{font-size:18px}.ah small{display:block;font-size:11.5px;color:var(--mut);font-weight:500}
+.ab{flex:1;overflow:auto;padding:0 14px 14px}
+.mc{background:#fff;border-radius:14px;padding:12px 13px;border:1px solid var(--line);margin-bottom:10px}
+.mc h5{font-size:12.5px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.alarm{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f0f2f6}.alarm:last-child{border:0}
+.sev{width:8px;align-self:stretch;border-radius:4px;flex:none}
+.alarm b{font-size:12.5px;display:block}.alarm span{font-size:11.5px;color:var(--mut)}
+.site{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f2f6}.site:last-child{border:0}
+.site b{font-size:13px}.site span{font-size:11.5px;color:var(--mut);display:block}
+.tb{height:62px;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;font-size:10.5px;color:var(--mut)}
+.tb a{display:flex;flex-direction:column;align-items:center;gap:3px}.tb a.act{color:var(--navy);font-weight:700}
+.tb .ti{font-size:17px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f0f2f6;cursor:pointer}.chk:last-child{border:0}
+.cb{width:20px;height:20px;border-radius:6px;border:2px solid #b6c0cf;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700}
+.chk.done .cb{background:var(--ok);border-color:var(--ok)}
+.chk.done b{text-decoration:line-through;color:var(--mut)}
+.chk b{font-size:12.5px;display:block}.chk span{font-size:11.5px;color:var(--mut)}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kv div{background:#f6f8fb;border-radius:10px;padding:8px 10px}
+.kv small{font-size:10.5px;color:var(--mut);display:block}.kv b{font-size:16px}
+.mbtn{width:100%;padding:12px;border-radius:12px;border:0;background:var(--navy);color:#fff;font-weight:700;font-size:14px}
+.mbtn:disabled{background:#c5cdd9}
+.side{max-width:360px;padding-top:16px}
+.side h3{font-size:17px;margin-bottom:8px}
+.side p{font-size:13px;color:var(--mut);line-height:1.55;margin-bottom:10px}
+.side ul{font-size:13px;color:var(--ink);line-height:1.55;padding-left:18px;margin-bottom:12px}
+.side .nav{display:flex;flex-wrap:wrap;gap:6px}
+.big{font-size:30px;font-weight:700;letter-spacing:-.02em}
+.photo{height:90px;border-radius:10px;border:1.5px dashed #b6c0cf;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:12px;background:#fafbfd}
+svg text{font-family:Inter,Arial,sans-serif}
+</style></head><body>
+
+<!-- ============ LAUNCHER ============ -->
+<section class="view" id="v-inicio">
+ <div class="hero"><div class="in">
+  <span class="pill sim"><span class="dot"></span>Prototipo navegable · datos simulados</span>
+  <h1>EcoGrid · Interfaces multi-perfil</h1>
+  <p>Nexus Energy AI S.A. · Caso N°4, Taller Especializado N°2, Parte 2.3. Cada perfil ve solo lo que necesita para decidir. En producción, cada indicador se lee de un tópico de Kafka, indicado bajo la cifra.</p>
+ </div></div>
+ <div class="cards">
+  <a class="pc" href="#ejecutivo"><div class="ic" style="background:#1f3864">▦</div><b>Dashboard Ejecutivo</b><span>Gerencia y Facilitadora de Mercado: resultado económico, desbalances, avance hacia la autorización del CEN.</span><span class="go">Abrir →</span></a>
+  <a class="pc" href="#despachador"><div class="ic" style="background:#b91c1c">⚡</div><b>Consola del Despachador</b><span>Centro de Control: frecuencia, BESS, órdenes por aprobar, modo de autonomía y botón de corte.</span><span class="go">Abrir →</span></a>
+  <a class="pc" href="#terreno"><div class="ic" style="background:#b45309">⛑</div><b>App Móvil · Terreno</b><span>Técnicos en subestación: alarmas, estado del gateway y órdenes de trabajo con checklist.</span><span class="go">Abrir →</span></a>
+  <a class="pc" href="#prosumidor"><div class="ic" style="background:#17614f">☀</div><b>App Móvil · Prosumidor</b><span>Clientes con generación propia: energía inyectada, ganancia y participación en flexibilidad.</span><span class="go">Abrir →</span></a>
+ </div>
+ <p class="note">Recorrido sugerido: Dashboard Ejecutivo (3 pestañas) → Consola del Despachador (aprobar una orden, cambiar el modo, probar el botón de corte) → App de terreno (Inicio → Subestación → Orden de trabajo; marcar el checklist). Los nombres de sitios y todas las cifras son ficticios.</p>
+</section>
+
+<!-- ============ EJECUTIVO ============ -->
+<section class="view" id="v-ejecutivo">
+ <div class="top"><a class="logo" href="#inicio"><i></i>EcoGrid</a>
+  <nav><a class="act" href="#ejecutivo">Ejecutivo</a><a href="#despachador">Despachador</a><a href="#terreno">Terreno</a><a href="#prosumidor">Prosumidor</a></nav>
+  <span class="sp"></span><span class="pill sim"><span class="dot"></span>Datos simulados</span><span class="who">S. Lindqvist · Facilitadora de Mercado</span></div>
+ <div class="main">
+  <div class="h1">Dashboard Ejecutivo</div><div class="sub">Portafolio 850 MW renovable · BESS 200 MWh · actualizado hace 12 s</div>
+  <div class="tabs"><a data-t="res" href="#ejecutivo">Resumen</a><a data-t="age" href="#ejecutivo-agentes">Agentes</a><a data-t="aud" href="#ejecutivo-auditoria">Auditoría CEN</a></div>
+
+  <div class="tab" id="t-res">
+   <div class="grid g4">
+    <div class="card kpi"><div class="l">Margen de arbitraje BESS · hoy</div><div class="v">286 UF</div><div class="d up">▲ 18% vs. regla fija MILP</div><span class="src">agent.decisions + market.prices.cen</span></div>
+    <div class="card kpi"><div class="l">Penalizaciones por desbalance · mes</div><div class="v">1.120 UF</div><div class="d up">▼ 75% vs. peor mes (4.500 UF)</div><span class="src">market.settlement · CEN</span></div>
+    <div class="card kpi"><div class="l">Error de pronóstico 1 h (MAPE)</div><div class="v">6,4%</div><div class="d up">▼ 2,1 pp vs. modelo anterior</div><span class="src">forecast.generation vs telemetry.validated</span></div>
+    <div class="card kpi"><div class="l">Disponibilidad BESS</div><div class="v">98,7%</div><div class="d">SoC flota 61% · 122 MWh</div><span class="src">telemetry.validated (BMS)</span></div>
+   </div>
+   <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Generación real vs. pronóstico, MW (hoy) <span class="leg"><span><i style="background:#1f3864"></i>Real</span><span><i style="background:#2e9b84"></i>Pronóstico P50</span><span><i style="background:#cfe9e2;height:8px"></i>Banda P10–P90</span></span></h3><div id="ch-fc"></div><span class="src">forecast.generation · telemetry.validated</span></div>
+    <div class="card"><h3>Autorización para operar en spot <span class="pill warn">Modo Sombra</span></h3>
+     <div class="gate"><svg class="ring" viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" fill="none" stroke="#edf1f6" stroke-width="10"/><circle cx="42" cy="42" r="34" fill="none" stroke="#1f3864" stroke-width="10" stroke-dasharray="164.3 213.6" transform="rotate(-90 42 42)" stroke-linecap="round"/><text x="42" y="47" text-anchor="middle" font-size="17" font-weight="700" fill="#16202f">23/30</text></svg>
+      <div><b style="font-size:14px">Días de simulación sin desbalance</b><div style="font-size:12.5px;color:#5b6678;margin-top:4px;line-height:1.45">El CEN exige historial sin desbalances antes de operar. Faltan 7 días; la racha se reinicia con cualquier desbalance.</div></div></div>
+     <div style="margin-top:14px;font-size:12.5px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span>Backtesting contra base histórica CEN</span><b class="up">Aprobado</b></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span>Adaptadores DNP3 en subestación de pruebas</span><b style="color:#b45309">2 de 4</b></div>
+      <div style="display:flex;justify-content:space-between"><span>Revisión de Ciberseguridad SCADA</span><b style="color:#b45309">Pendiente</b></div>
+     </div><span class="src">audit.events · registro MLflow</span></div>
+   </div>
+   <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Precio spot y acción de la BESS (últimas 12 h)</h3><div id="ch-px"></div><span class="src">market.prices.cen · orders.bess.setpoints</span></div>
+    <div class="card"><h3>Por qué decidió así · última orden</h3>
+     <div style="font-size:12.5px;line-height:1.5"><span class="pill vio" style="margin-bottom:8px">Explicación del Auditor (A5)</span><br>
+     14:35 · <b>Descargar 18 MW</b> en Pampa Norte durante 15 min. El precio spot subió a 92 USD/MWh y el pronóstico anticipa nubosidad en 40 min, con caída de 60 MW solares. La orden cubre el compromiso de inyección y evita un desbalance estimado de 12 MWh. El Guardián de Riesgo verificó SoC mínimo (20%) y la reserva de frecuencia asignada (30 MW).</div>
+     <div style="display:flex;gap:6px;margin-top:10px"><span class="pill info">modelo ppo-trader v1.4.2</span><span class="pill ok">sin veto</span></div><span class="src">agent.decisions · audit.events</span></div>
+   </div>
+  </div>
+
+  <div class="tab" id="t-age">
+   <div class="grid g21">
+    <div class="card"><h3>Estado de la red agéntica</h3>
+     <div class="agent"><div class="av" style="background:#47367f">A1</div><div style="flex:1"><div class="t">Orquestador</div><div class="s">Reparto de esta hora: 140 MWh a mercado, 30 MW reservados para frecuencia</div></div><span class="pill ok"><span class="dot"></span>Activo</span></div>
+     <div class="agent"><div class="av" style="background:#1f3864">A2</div><div style="flex:1"><div class="t">Pronosticador</div><div class="s">Última corrida 14:30 · MAPE 1 h 6,4% · fine-tuned v2.1</div></div><span class="pill ok"><span class="dot"></span>Activo</span></div>
+     <div class="agent"><div class="av" style="background:#1f3864">A3</div><div style="flex:1"><div class="t">Trader Spot (PPO)</div><div class="s">Propone cada 5 min · en modo Sombra, sus ofertas no se envían al CEN</div></div><span class="pill warn"><span class="dot"></span>Sombra</span></div>
+     <div class="agent"><div class="av" style="background:#c2410c">A4</div><div style="flex:1"><div class="t">Guardián de Riesgo</div><div class="s">3 vetos hoy (2 por SoC mínimo, 1 por rampa)</div></div><span class="pill ok"><span class="dot"></span>Activo</span></div>
+     <div class="agent"><div class="av" style="background:#47367f">A5</div><div style="flex:1"><div class="t">Auditor de Cumplimiento</div><div class="s">288 decisiones explicadas hoy · reporte CEN semanal listo</div></div><span class="pill ok"><span class="dot"></span>Activo</span></div>
+     <div class="agent"><div class="av" style="background:#47367f">A6</div><div style="flex:1"><div class="t">Copiloto del Despachador</div><div class="s">Solo lectura · 14 consultas hoy</div></div><span class="pill ok"><span class="dot"></span>Activo</span></div>
+     <div class="agent"><div class="av" style="background:#1f3864">A7</div><div style="flex:1"><div class="t">Reguladores de Frecuencia Edge ×4</div><div class="s">Latencia p99: 41 ms · 2 nodos en servicio, 2 esperando adaptador DNP3</div></div><span class="pill warn"><span class="dot"></span>2 de 4</span></div>
+    </div>
+    <div class="card"><h3>Vetos del Guardián (7 días)</h3><div id="ch-veto"></div>
+     <div style="font-size:12.5px;color:#5b6678;margin-top:10px;line-height:1.5">Un veto no es una falla: es el sistema funcionando. Si la tasa sube, el Orquestador reduce la autonomía y avisa al Despachador.</div><span class="src">agent.decisions (veto=true)</span></div>
+   </div>
+  </div>
+
+  <div class="tab" id="t-aud">
+   <div class="card"><h3>Registro de decisiones auditables <span style="display:flex;gap:6px"><button class="btn" onclick="toast('Reporte CEN semanal generado (simulado)')">Generar reporte CEN</button></span></h3>
+    <table><thead><tr><th>Hora</th><th>Agente</th><th>Acción</th><th>Versión</th><th>Máscara de seguridad</th><th>Resultado</th><th>Aprobó</th></tr></thead><tbody>
+     <tr><td class="mono">14:35:02</td><td>A3 Trader</td><td>Descargar 18 MW · Pampa Norte</td><td class="mono">ppo-trader 1.4.2</td><td>SoC ≥ 20% ✓ · reserva 30 MW ✓</td><td><span class="pill ok">Ejecutada (sombra)</span></td><td>A4</td></tr>
+     <tr><td class="mono">14:30:01</td><td>A3 Trader</td><td>Cargar 25 MW · Llano Alto</td><td class="mono">ppo-trader 1.4.2</td><td>Rampa 25 MW/min ✗</td><td><span class="pill bad">Vetada</span></td><td>A4</td></tr>
+     <tr><td class="mono">14:00:00</td><td>A1 Orquestador</td><td>Reserva frecuencia = 30 MW</td><td class="mono">orq-prompt v3</td><td>Dentro de rango CEN ✓</td><td><span class="pill ok">Aplicada</span></td><td>Despachador</td></tr>
+     <tr><td class="mono">13:52:17</td><td>A7 Edge Pampa N.</td><td>Respuesta a 49,82 Hz · +6 MW</td><td class="mono">ffr-edge 0.9.0</td><td>Envolvente A4 ✓</td><td><span class="pill ok">Ejecutada · 38 ms</span></td><td>Automático</td></tr>
+     <tr><td class="mono">13:05:44</td><td>A3 Trader</td><td>Oferta venta 40 MWh · bloque 14:00</td><td class="mono">ppo-trader 1.4.2</td><td>Exposición desbalance ≤ 5% ✓</td><td><span class="pill warn">No enviada (sombra)</span></td><td>—</td></tr>
+    </tbody></table>
+    <div style="font-size:12px;color:#5b6678;margin-top:10px">Cada fila se guarda en almacenamiento WORM (no modificable) con entradas completas, para que el CEN y la CNE puedan reproducir la decisión.</div><span class="src">audit.events · retención indefinida</span>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ DESPACHADOR ============ -->
+<section class="view" id="v-despachador">
+ <div class="top"><a class="logo" href="#inicio"><i></i>EcoGrid</a>
+  <nav><a href="#ejecutivo">Ejecutivo</a><a class="act" href="#despachador">Despachador</a><a href="#terreno">Terreno</a><a href="#prosumidor">Prosumidor</a></nav>
+  <span class="sp"></span><span class="pill sim"><span class="dot"></span>Datos simulados</span><span class="who">H. Villablanca · Despachador Jefe</span></div>
+ <div class="main">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px">
+   <div><div class="h1">Consola del Centro de Control</div><div class="sub" style="margin:0">El SCADA/EMS sigue siendo la autoridad operativa; esta consola supervisa a los agentes</div></div>
+   <div><div style="font-size:11.5px;color:#5b6678;margin-bottom:4px;text-align:right">Modo de autonomía</div><div class="seg" id="mode"><button data-m="Sombra" class="act">Sombra</button><button data-m="Asesor">Asesor</button><button data-m="Autónomo">Autónomo con límites</button></div></div>
+  </div>
+  <div class="grid" style="grid-template-columns:1fr 1fr 1fr 300px">
+   <div class="card"><h3>Frecuencia del sistema <span class="pill ok">Normal</span></h3><div class="freq" id="hz">50,01 Hz</div><div id="ch-hz"></div><span class="src">telemetry.validated (IED, 100 ms)</span></div>
+   <div class="card"><h3>BESS por subestación</h3>
+    <div style="font-size:12.5px">
+     <div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between"><span>Pampa Norte · 80 MWh</span><b>64%</b></div><div class="bar"><i style="width:64%;background:#1f3864"></i></div></div>
+     <div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between"><span>Llano Alto · 60 MWh</span><b>71%</b></div><div class="bar"><i style="width:71%;background:#1f3864"></i></div></div>
+     <div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between"><span>Cerro Viento · 40 MWh</span><b>38%</b></div><div class="bar"><i style="width:38%;background:#b45309"></i></div></div>
+     <div><div style="display:flex;justify-content:space-between"><span>Costa Sur · 20 MWh</span><b>55%</b></div><div class="bar"><i style="width:55%;background:#1f3864"></i></div></div>
+    </div><span class="src">telemetry.validated (BMS vía DNP3)</span></div>
+   <div class="card"><h3>Reguladores Edge</h3>
+    <table><tbody>
+     <tr><td>Pampa Norte</td><td><span class="pill ok">En servicio</span></td><td class="mono">38 ms</td></tr>
+     <tr><td>Llano Alto</td><td><span class="pill ok">En servicio</span></td><td class="mono">44 ms</td></tr>
+     <tr><td>Cerro Viento</td><td><span class="pill warn">Sin adaptador</span></td><td>—</td></tr>
+     <tr><td>Costa Sur</td><td><span class="pill warn">Sin adaptador</span></td><td>—</td></tr>
+    </tbody></table><span class="src">agent.decisions (A7) · latencia p99</span></div>
+   <div class="card kill"><h3 style="color:#991b1b">Corte de emergencia</h3><div style="font-size:12.5px;color:#7f1d1d;margin-bottom:12px;line-height:1.45">Detiene a A3 y A7 en todas las subestaciones. La BESS vuelve a control droop con la última consigna aprobada.</div><button class="bigred" onclick="openM('m-kill')">DETENER AGENTES</button><div style="font-size:11px;color:#7f1d1d;margin-top:8px" id="killst">Estado: agentes operando</div></div>
+  </div>
+  <div class="grid" style="grid-template-columns:2fr 1fr;margin-top:14px">
+   <div class="card"><h3>Órdenes que requieren aprobación <span class="pill info" id="pend">2 pendientes</span></h3>
+    <table><thead><tr><th>Hora</th><th>Propuesta</th><th>Motivo</th><th>Guardián</th><th></th></tr></thead><tbody id="orders">
+     <tr><td class="mono">14:40</td><td><b>Descargar 22 MW</b> · Llano Alto · 15 min</td><td>Caída de viento pronosticada (−45 MW en 30 min)</td><td><span class="pill ok">Sin objeción</span></td><td style="white-space:nowrap"><button class="btn pri" onclick="act(this,'Aprobada')">Aprobar</button> <button class="btn" onclick="act(this,'Rechazada')">Rechazar</button></td></tr>
+     <tr><td class="mono">14:40</td><td><b>Oferta venta 35 MWh</b> · bloque 15:00</td><td>Spread esperado 31 USD/MWh</td><td><span class="pill warn">Exposición 4,8%</span></td><td style="white-space:nowrap"><button class="btn pri" onclick="act(this,'Aprobada')">Aprobar</button> <button class="btn" onclick="act(this,'Rechazada')">Rechazar</button></td></tr>
+    </tbody></table>
+    <div style="font-size:12px;color:#5b6678;margin-top:8px">En modo Asesor toda orden pasa por aquí. En modo Autónomo con límites solo llegan las que el Guardián marca con objeción.</div></div>
+   <div class="card"><h3>Copiloto (A6) · solo lectura</h3>
+    <div style="font-size:12.5px;background:#f6f8fb;border-radius:10px;padding:10px;margin-bottom:8px"><b>Tú:</b> ¿Por qué Cerro Viento está bajo 40%?</div>
+    <div style="font-size:12.5px;background:#f1eefa;border-radius:10px;padding:10px;line-height:1.5"><b>Copiloto:</b> Descargó 14 MWh entre 12:10 y 13:00 para cubrir una caída de viento. El Orquestador no la recargará hasta las 16:00, cuando el pronóstico de precio es menor. El SoC sigue sobre el mínimo de 20%.</div>
+    <div style="display:flex;gap:6px;margin-top:10px"><input style="flex:1;border:1px solid #e1e6ee;border-radius:8px;padding:8px;font:inherit;font-size:12.5px" placeholder="Pregunta sobre la red o una decisión…"><button class="btn">Enviar</button></div></div>
+  </div>
+ </div>
+</section>
+
+<!-- ============ TERRENO ============ -->
+<section class="view" id="v-terreno">
+ <div class="top"><a class="logo" href="#inicio"><i></i>EcoGrid</a>
+  <nav><a href="#ejecutivo">Ejecutivo</a><a href="#despachador">Despachador</a><a class="act" href="#terreno">Terreno</a><a href="#prosumidor">Prosumidor</a></nav><span class="sp"></span><span class="pill sim"><span class="dot"></span>Datos simulados</span></div>
+ <div class="stage">
+  <div class="phone"><div class="scr">
+   <div class="sb"><span>14:41</span><span>LTE privado ▮▮▮</span></div>
+   <!-- t-home -->
+   <div class="ms" id="m-home">
+    <div class="ah"><div><h2>Hola, Rodrigo</h2><small>Técnico de terreno · Zona Norte</small></div></div>
+    <div class="ab">
+     <div class="mc"><h5>Alarmas activas <span class="pill bad">3</span></h5>
+      <div class="alarm"><i class="sev" style="background:#b91c1c"></i><div><b>Enlace DNP3 con errores de CRC</b><span>Llano Alto · 12 tramas rechazadas en 10 min</span></div></div>
+      <div class="alarm"><i class="sev" style="background:#b45309"></i><div><b>Gateway sin adaptador instalado</b><span>Cerro Viento · bloquea al regulador Edge</span></div></div>
+      <div class="alarm"><i class="sev" style="background:#b45309"></i><div><b>Temperatura de rack BESS 38 °C</b><span>Pampa Norte · umbral 40 °C</span></div></div>
+     </div>
+     <div class="mc"><h5>Mis subestaciones</h5>
+      <a class="site" href="#terreno-sitio"><div><b>Llano Alto</b><span>BESS 60 MWh · gateway en servicio</span></div><span class="pill bad">1 crítica ›</span></a>
+      <div class="site"><div><b>Cerro Viento</b><span>BESS 40 MWh · sin adaptador</span></div><span class="pill warn">OT abierta</span></div>
+      <div class="site"><div><b>Pampa Norte</b><span>BESS 80 MWh · en servicio</span></div><span class="pill ok">OK</span></div>
+     </div>
+     <div class="mc"><h5>Órdenes de trabajo hoy</h5>
+      <a class="site" href="#terreno-orden"><div><b>OT-0412 · Instalar adaptador DNP3</b><span>Cerro Viento · tarea EDT 1.5</span></div><span class="pill info">Iniciar ›</span></a>
+     </div>
+    </div>
+   </div>
+   <!-- t-sitio -->
+   <div class="ms" id="m-sitio">
+    <div class="ah"><a class="bk" href="#terreno">‹</a><div><h2>Llano Alto</h2><small>Subestación 220 kV · BESS 60 MWh</small></div></div>
+    <div class="ab">
+     <div class="mc"><h5>Gateway de protocolos <span class="pill bad">Degradado</span></h5>
+      <div class="kv"><div><small>Errores CRC (10 min)</small><b style="color:#b91c1c">12</b></div><div><small>Reintentos exitosos</small><b>11 / 12</b></div><div><small>Latencia lazo Edge</small><b>44 ms</b></div><div><small>DNP3 SAv5</small><b style="color:#15803d">Activo</b></div></div>
+      <div style="font-size:11.5px;color:#5b6678;margin-top:8px;line-height:1.45">El gateway reintentó las tramas perdidas; 1 trama se descartó y no llegó a Kafka. Probable falla de cable o conector en el bus RS-485 del PCS.</div></div>
+     <div class="mc"><h5>BESS</h5><div class="kv"><div><small>SoC</small><b>71%</b></div><div><small>Potencia</small><b>−22 MW</b></div><div><small>Temp. máx. celda</small><b>31 °C</b></div><div><small>Modo</small><b>Agente A7</b></div></div></div>
+     <div class="mc"><h5>Acciones</h5><button class="mbtn" onclick="toast('OT-0413 creada: revisar bus RS-485 del PCS (simulado)')">Crear orden de trabajo</button><div style="font-size:11px;color:#5b6678;margin-top:8px;text-align:center">La app no puede enviar comandos a equipos: solo lee y reporta</div></div>
+    </div>
+   </div>
+   <!-- t-orden -->
+   <div class="ms" id="m-orden">
+    <div class="ah"><a class="bk" href="#terreno">‹</a><div><h2>OT-0412</h2><small>Instalar adaptador DNP3 · Cerro Viento</small></div></div>
+    <div class="ab">
+     <div class="mc"><h5>Checklist de puesta en servicio <span id="prog" class="pill info">0 / 6</span></h5>
+      <div class="chk"><i class="cb">✓</i><div><b>Permiso de trabajo firmado por el Centro de Control</b><span>Despachador confirma ventana de mantención</span></div></div>
+      <div class="chk"><i class="cb">✓</i><div><b>Gateway certificado montado junto a la RTU</b><span>No se instala software en la RTU</span></div></div>
+      <div class="chk"><i class="cb">✓</i><div><b>Claves DNP3 SAv5 cargadas desde PKI</b><span>Verificar huella del certificado</span></div></div>
+      <div class="chk"><i class="cb">✓</i><div><b>Prueba de CRC y reintento de tramas</b><span>0 errores en 15 min de prueba</span></div></div>
+      <div class="chk"><i class="cb">✓</i><div><b>Telemetría visible en Kafka</b><span>telemetry.validated recibe el sitio</span></div></div>
+      <div class="chk"><i class="cb">✓</i><div><b>Prueba de latencia del lazo Edge &lt; 100 ms</b><span>Registrar p99 medido</span></div></div>
+     </div>
+     <div class="mc"><h5>Evidencia</h5><div class="photo">+ Adjuntar foto del montaje</div></div>
+     <button class="mbtn" id="close-ot" disabled onclick="toast('OT-0412 cerrada. Evidencia enviada a Ciberseguridad SCADA para revisión (simulado)')">Cerrar orden y enviar evidencia</button>
+    </div>
+   </div>
+   <div class="tb"><a href="#terreno" class="act"><span class="ti">⌂</span>Inicio</a><a href="#terreno-sitio"><span class="ti">◉</span>Sitios</a><a href="#terreno-orden"><span class="ti">☑</span>Órdenes</a><a href="#inicio"><span class="ti">⇄</span>Perfil</a></div>
+  </div></div>
+  <div class="side" id="side-t"></div>
+ </div>
+</section>
+
+<!-- ============ PROSUMIDOR ============ -->
+<section class="view" id="v-prosumidor">
+ <div class="top"><a class="logo" href="#inicio"><i></i>EcoGrid</a>
+  <nav><a href="#ejecutivo">Ejecutivo</a><a href="#despachador">Despachador</a><a href="#terreno">Terreno</a><a class="act" href="#prosumidor">Prosumidor</a></nav><span class="sp"></span><span class="pill sim"><span class="dot"></span>Datos simulados</span></div>
+ <div class="stage">
+  <div class="phone"><div class="scr">
+   <div class="sb"><span>14:41</span><span>5G ▮▮▮</span></div>
+   <div class="ah"><div><h2>Mi energía</h2><small>Viña Los Robles · techo solar 180 kW</small></div></div>
+   <div class="ab">
+    <div class="mc"><h5>Hoy</h5><div class="big">612 kWh</div><div style="font-size:12px;color:#5b6678">generados · 418 kWh inyectados a la red</div><div id="ch-pro" style="margin-top:8px"></div></div>
+    <div class="mc"><h5>Este mes</h5><div class="kv"><div><small>Ingreso por inyección</small><b>4,1 UF</b></div><div><small>Ahorro en consumo</small><b>6,8 UF</b></div></div></div>
+    <div class="mc"><h5>Programa de flexibilidad <span class="pill ok">Inscrito</span></h5><div style="font-size:12px;color:#5b6678;line-height:1.45;margin-bottom:10px">Mañana a las 19:00 se espera precio alto. ¿Permites diferir el riego 1 hora? Ganas 0,3 UF.</div><div style="display:flex;gap:8px"><button class="mbtn" style="flex:1" onclick="toast('Aceptado: riego diferido 19:00–20:00 (simulado)')">Aceptar</button><button class="mbtn" style="flex:1;background:#fff;color:#1f3864;border:1px solid #e1e6ee" onclick="toast('Rechazado sin penalización (simulado)')">Ahora no</button></div></div>
+   </div>
+   <div class="tb"><a class="act"><span class="ti">☀</span>Energía</a><a><span class="ti">$</span>Pagos</a><a><span class="ti">⚑</span>Flexibilidad</a><a href="#inicio"><span class="ti">⇄</span>Perfil</a></div>
+  </div></div>
+  <div class="side"><h3>App Móvil · perfil Prosumidor</h3><p>Muestra al cliente con generación propia lo que produjo, lo que ganó y las solicitudes de flexibilidad que le envía el Orquestador cuando se espera un precio alto.</p><ul><li>Lenguaje simple: kWh y UF, sin términos de mercado.</li><li>Participar es voluntario; rechazar no tiene costo.</li><li>No ve datos de la red ni de otros clientes.</li></ul><div class="nav"><a class="btn" href="#terreno">Ver perfil Terreno</a><a class="btn" href="#inicio">Inicio</a></div></div>
+ </div>
+</section>
+
+<div class="modal" id="m-kill"><div class="box"><h4>¿Detener todos los agentes de control?</h4><p>A3 (Trader) y A7 (Reguladores Edge) se detienen de inmediato en las 4 subestaciones. La BESS pasa a control droop con la última consigna aprobada. Queda registrado en auditoría con tu usuario.</p><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="closeM()">Cancelar</button><button class="btn red" onclick="doKill()">Detener agentes</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2800)}
+function openM(id){$('#'+id).classList.add('on')}function closeM(){$$('.modal').forEach(m=>m.classList.remove('on'))}
+function doKill(){closeM();$('#killst').textContent='Estado: agentes DETENIDOS 14:41 · control droop activo';$('#killst').style.fontWeight='700';toast('Agentes detenidos. Evento registrado en audit.events (simulado)')}
+function act(b,r){const td=b.parentElement;td.innerHTML='<span class="pill '+(r==='Aprobada'?'ok':'bad')+'">'+r+'</span>';const n=$$('#orders .btn.pri').length;$('#pend').textContent=n+' pendientes'}
+$$('#mode button').forEach(b=>b.onclick=()=>{$$('#mode button').forEach(x=>x.classList.remove('act'));b.classList.add('act');toast('Modo '+b.dataset.m+' solicitado: requiere confirmación del Despachador Jefe (simulado)')});
+function upd(){const c=$$('#m-orden .chk.done').length;$('#prog').textContent=c+' / 6';$('#prog').className='pill '+(c===6?'ok':'info');$('#close-ot').disabled=c<6}
+$$('#m-orden .chk').forEach(c=>c.onclick=()=>{c.classList.toggle('done');upd()});
+
+/* ---- charts (svg) ---- */
+function line(pts,W,H,min,max,pad){return pts.map((v,i)=>[(pad+i*(W-pad*2)/(pts.length-1)).toFixed(1),(H-18-(v-min)/(max-min)*(H-30)).toFixed(1)])}
+function path(p){return 'M'+p.map(q=>q.join(',')).join(' L')}
+function fc(){const W=640,H=230,n=48;let real=[],p50=[],lo=[],hi=[];
+ for(let i=0;i<n;i++){const h=i/2;const s=Math.max(0,Math.sin((h-6.5)/13*Math.PI))*620;const w=180+40*Math.sin(i/5);const base=s+w;
+  p50.push(base);lo.push(base*.88-15);hi.push(base*1.1+15);
+  let r=base*(1+0.05*Math.sin(i*1.7));if(i>=26&&i<=30)r-=110*Math.sin((i-26)/4*Math.PI);real.push(i<=29?r:null)}
+ const max=900,pad=34;const P=a=>line(a,W,H,0,max,pad);
+ const L=P(lo),Hh=P(hi);const band='M'+Hh.map(q=>q.join(',')).join(' L')+' L'+L.reverse().map(q=>q.join(',')).join(' L')+'Z';
+ const rp=P(real.map(v=>v??0)).slice(0,30);
+ let g='';for(let y=0;y<=900;y+=300){const yy=H-18-y/max*(H-30);g+=`<line x1="${pad}" x2="${W-pad}" y1="${yy}" y2="${yy}" stroke="#eef1f5"/><text x="${pad-6}" y="${yy+4}" font-size="10" fill="#8a94a6" text-anchor="end">${y}</text>`}
+ for(let h=0;h<=24;h+=6){const x=pad+h*2*(W-pad*2)/(n-1);g+=`<text x="${x}" y="${H-3}" font-size="10" fill="#8a94a6" text-anchor="middle">${String(h).padStart(2,'0')}:00</text>`}
+ const nx=pad+29*(W-pad*2)/(n-1);
+ $('#ch-fc').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%">${g}<path d="${band}" fill="#cfe9e2"/><path d="${path(P(p50))}" fill="none" stroke="#2e9b84" stroke-width="2" stroke-dasharray="5 4"/><path d="${path(rp)}" fill="none" stroke="#1f3864" stroke-width="2.4"/><line x1="${nx}" x2="${nx}" y1="10" y2="${H-18}" stroke="#b45309" stroke-dasharray="3 3"/><text x="${nx+5}" y="22" font-size="10.5" fill="#b45309" font-weight="600">ahora 14:41 · nubosidad detectada</text></svg>`}
+function px(){const W=640,H=200,pad=34,n=48;let p=[],a=[];for(let i=0;i<n;i++){p.push(55+30*Math.sin((i-10)/9)+ (i>40?25:0)+6*Math.sin(i*1.3));}
+ const P=line(p,W,H,20,120,pad);let bars='';const bw=(W-pad*2)/n;
+ for(let i=0;i<n;i++){const v=p[i]>75?-1:(p[i]<45?1:0);if(!v)continue;const x=pad+i*bw;bars+=`<rect x="${x}" y="${v<0?H-60:H-40}" width="${bw-1}" height="20" fill="${v<0?'#1f3864':'#9fc3e6'}" opacity=".85"/>`}
+ let g='';[20,60,100].forEach(y=>{const yy=H-18-(y-20)/100*(H-30);g+=`<line x1="${pad}" x2="${W-pad}" y1="${yy}" y2="${yy}" stroke="#eef1f5"/><text x="${pad-6}" y="${yy+4}" font-size="10" fill="#8a94a6" text-anchor="end">${y}</text>`});
+ $('#ch-px').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%">${g}<text x="6" y="12" font-size="10" fill="#8a94a6">USD/MWh</text>${bars}<path d="${path(P)}" fill="none" stroke="#c2410c" stroke-width="2.2"/><g font-size="10.5" fill="#5b6678"><rect x="${W-250}" y="6" width="10" height="8" fill="#1f3864"/><text x="${W-236}" y="14">Descarga (vende)</text><rect x="${W-140}" y="6" width="10" height="8" fill="#9fc3e6"/><text x="${W-126}" y="14">Carga (compra)</text></g></svg>`}
+function hz(){const W=300,H=90;let v=[];for(let i=0;i<60;i++)v.push(50+0.03*Math.sin(i/4)+(i>38&&i<46?-0.17*Math.sin((i-38)/8*Math.PI):0));
+ const P=line(v,W,H,49.75,50.1,6);const y50=H-18-(50-49.75)/.35*(H-30);
+ $('#ch-hz').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%"><line x1="6" x2="${W-6}" y1="${y50}" y2="${y50}" stroke="#cbd3de" stroke-dasharray="3 3"/><path d="${path(P)}" fill="none" stroke="#1f3864" stroke-width="2"/><text x="${W-6}" y="${H-3}" font-size="10" fill="#8a94a6" text-anchor="end">últimos 60 s · evento 49,82 Hz atendido por A7 en 38 ms</text></svg>`}
+function veto(){const d=[4,6,3,2,5,3,3],W=300,H=150,bw=30;let s='';const L=['L','M','M','J','V','S','D'];d.forEach((v,i)=>{const h=v*16,x=20+i*40;s+=`<rect x="${x}" y="${H-20-h}" width="${bw}" height="${h}" rx="4" fill="${i==6?'#c2410c':'#e8a07a'}"/><text x="${x+bw/2}" y="${H-24-h}" font-size="10.5" text-anchor="middle" fill="#16202f">${v}</text><text x="${x+bw/2}" y="${H-5}" font-size="10.5" text-anchor="middle" fill="#8a94a6">${L[i]}</text>`});$('#ch-veto').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%">${s}</svg>`}
+function pro(){const W=320,H=80;let s='';for(let i=0;i<24;i++){const v=Math.max(0,Math.sin((i-6.5)/13*Math.PI))*60;s+=`<rect x="${i*13}" y="${H-12-v}" width="10" height="${v}" rx="2" fill="${i==14?'#17614f':'#9fd3c4'}"/>`}$('#ch-pro').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%">${s}<text x="0" y="${H}" font-size="9.5" fill="#8a94a6">00</text><text x="${W/2-6}" y="${H}" font-size="9.5" fill="#8a94a6">12</text><text x="${W-14}" y="${H}" font-size="9.5" fill="#8a94a6">24</text></svg>`}
+fc();px();hz();veto();pro();
+
+/* ---- routing ---- */
+const SIDE={home:`<h3>App Móvil · perfil Terreno</h3><p>Pantalla de inicio del técnico. Prioriza lo accionable: alarmas por severidad, sus subestaciones y las órdenes de trabajo del día.</p><ul><li>Funciona con la red 4G/LTE privada de los parques.</li><li>Solo lectura: la app nunca envía comandos a equipos.</li><li>Toca <b>Llano Alto</b> o la orden <b>OT-0412</b>.</li></ul>`,
+ sitio:`<h3>Detalle de subestación</h3><p>Diagnóstico del gateway de protocolos: errores de CRC, reintentos y latencia del lazo Edge. Son justamente los controles que faltaban en la tarea 1.2 de la Parte 1.</p><ul><li>Muestra la causa probable en lenguaje simple.</li><li>Desde aquí se crea una orden de trabajo, no un comando.</li></ul>`,
+ orden:`<h3>Orden de trabajo con checklist</h3><p>Guía la instalación del adaptador DNP3, la tarea 1.5 que estaba en 0%. La orden solo se puede cerrar con los 6 pasos completos y la evidencia adjunta.</p><ul><li>Marca cada paso para habilitar el cierre.</li><li>La evidencia va a Ciberseguridad SCADA para su revisión.</li><li>El cierre genera el avance de la tarea 1.5.</li></ul>`};
+function route(){let h=(location.hash||'#inicio').slice(1);const base=h.split('-')[0];const ok=['inicio','ejecutivo','despachador','terreno','prosumidor'];const v=ok.includes(base)?base:'inicio';
+ $$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
+ if(v==='ejecutivo'){const t=h==='ejecutivo-agentes'?'age':h==='ejecutivo-auditoria'?'aud':'res';$$('#v-ejecutivo .tab').forEach(x=>x.style.display=x.id==='t-'+t?'block':'none');$$('#v-ejecutivo .tabs a').forEach(a=>a.classList.toggle('act',a.dataset.t===t))}
+ if(v==='terreno'){const s=h==='terreno-sitio'?'sitio':h==='terreno-orden'?'orden':'home';$$('#v-terreno .ms').forEach(x=>{x.style.display=x.id==='m-'+s?'flex':'none';x.style.flexDirection='column';x.style.flex='1';x.style.minHeight='0'});
+  $$('#v-terreno .tb a').forEach((a,i)=>a.classList.toggle('act',(s==='home'&&i==0)||(s==='sitio'&&i==1)||(s==='orden'&&i==2)));
+  $('#side-t').innerHTML=SIDE[s]+'<div class="nav"><a class="btn" href="#terreno">Inicio</a><a class="btn" href="#terreno-sitio">Subestación</a><a class="btn" href="#terreno-orden">Orden</a><a class="btn" href="#prosumidor">Perfil Prosumidor</a></div>'}
+ window.scrollTo(0,0)}
+addEventListener('hashchange',route);route();
+</script>
+</body></html>
